@@ -207,23 +207,6 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormMessage />
           </FormItem>
         </FormField>
-
-        <!-- <FormField v-slot="{ componentField }" name="percent">
-          <FormItem>
-            <FormLabel>价位</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                :placeholder="
-                  form.values.targetCity !== city.name ? '售出价位百分比' : '买入价位百分比'
-                "
-                v-bind="componentField"
-              />
-            </FormControl>
-            <FormDescription></FormDescription>
-            <FormMessage />
-          </FormItem>
-        </FormField> -->
         <FormField v-slot="{ componentField }" name="percent">
           <FormItem>
             <FormLabel>价位</FormLabel>
