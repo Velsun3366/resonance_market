@@ -96,7 +96,7 @@ watch(open, (open) => {
           </FormItem>
         </FormField>
 
-        <FormField v-slot="{ componentField }" name="price">
+        <!-- <FormField v-slot="{ componentField }" name="price">
           <FormItem>
             <FormLabel>价格</FormLabel>
             <FormControl>
@@ -109,24 +109,22 @@ watch(open, (open) => {
             <FormDescription></FormDescription>
             <FormMessage />
           </FormItem>
-        </FormField>
+        </FormField> -->
 
-        <!-- <FormField v-slot="{ componentField }" name="percent">
+        <FormField v-slot="{ componentField }" name="percent">
           <FormItem>
             <FormLabel>价位</FormLabel>
             <FormControl>
               <Input
                 type="number"
-                :placeholder="
-                  form.values.targetCity !== city.name ? '售出价位' : '买入价位'
-                "
+                :placeholder="form.values.targetCity !== city.name ? '售出价位' : '买入价位'"
                 v-bind="componentField"
               />
             </FormControl>
             <FormDescription></FormDescription>
             <FormMessage />
           </FormItem>
-        </FormField> -->
+        </FormField>
         <FormField v-slot="{ componentField }" name="percent">
           <FormItem>
             <FormLabel>价位</FormLabel>
