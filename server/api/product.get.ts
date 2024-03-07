@@ -55,17 +55,18 @@ export const queryValuableLogs = memoExternal(
     external: {
       async get() {
         const storage = connectStorage();
-        return await storage.getItem<Log[]>(`api:products`);
+        const date = await storage.getItem<Log[]>(`api:products`);
+        if (data) {
+          console.log(`Hit cache at ${new Date()}`);
+        }
+        return data;
       },
       async set(params, value) {
         const storage = connectStorage();
         await storage.setItem(`api:products`, value);
+        console.log(`Set cache at ${new Date()}`);
       },
       async remove() {
-        const storage = connectStorage();
-        await storage.removeItem(`api:products`);
-      },
-      async clear() {
         const storage = connectStorage();
         await storage.removeItem(`api:products`);
       }
@@ -74,13 +75,13 @@ export const queryValuableLogs = memoExternal(
 );
 
 setInterval(async () => {
-  await queryValuableLogs.clear();
+  await queryValuableLogs.remove(undefined as any);
 }, 10 * 1000);
 
 export default defineEventHandler(async (event) => {
   const db = await connectDatabase();
 
-  const query = await queryValuableLogs.raw(db);
+  const query = await queryValuableLogs.get(db);
 
   return {
     latest: query
