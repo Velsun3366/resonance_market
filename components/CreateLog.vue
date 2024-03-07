@@ -37,116 +37,19 @@ import type { CityInfo, ProductInfo } from '@/utils/types';
 
 const props = defineProps<{ city: CityInfo; product: ProductInfo }>();
 
-const store = useLatestLogs();
-
 const open = ref(false);
 
-const formSchema = toTypedSchema(
-  z.object({
-    targetCity: z.string(),
-    price: z.number().gt(0),
-    percent: z.array(z.number().gt(0).lt(200)),
-    trend: z.enum(['up', 'same', 'down'])
-  })
-);
-
-const form = useForm({
-  initialValues: {
-    percent: [100],
-    trend: 'same'
-  },
-  validationSchema: formSchema
+const { form, onSubmit } = useReportForm({
+  sourceCity: props.city.name,
+  name: props.product.name,
+  onSubmitSuccess() {
+    open.value = false;
+  }
 });
 
 watch(open, (open) => {
   if (open) {
     form.resetForm();
-  }
-});
-
-watch(
-  () => form.values.targetCity,
-  (target, prev) => {
-    if (target === prev || !target) return;
-
-    if (form.isFieldDirty('price') || form.isFieldDirty('percent')) return;
-
-    const latest = store.getLatestLog(props.city.name, props.product.name, target);
-    if (latest) {
-      form.resetField('price', { value: latest.price });
-      form.resetField('percent', { value: [latest.percent] });
-      form.resetField('trend', { value: latest.trend });
-    }
-  }
-);
-
-watch(
-  () => [form.values.targetCity, form.values.price] as const,
-  ([target, price], prev) => {
-    if (target === prev[0] && price === prev[1]) return;
-
-    // @ts-ignore
-    if (price === '') {
-      form.setFieldValue('price', undefined);
-      return;
-    }
-
-    if (price === undefined) return;
-    if (form.isFieldDirty('percent')) return;
-    if (!form.values.targetCity) return;
-    const transaction = props.product.transactions.find(
-      (tr) => tr.targetCity === form.values.targetCity
-    );
-    if (transaction && transaction.basePrice > 0) {
-      const percent = +((100 * price) / transaction.basePrice).toFixed(0);
-      if (percent > 0 && percent < 200) {
-        form.resetField('percent', { value: [percent] });
-      }
-    }
-  }
-);
-
-watch(
-  () => [form.values.targetCity, form.values.percent] as const,
-  ([target, percent], prev) => {
-    if (target === prev[0] && percent?.[0] === prev[1]?.[0]) return;
-
-    if (percent === undefined) return;
-    if (form.isFieldDirty('price')) return;
-    if (!form.values.targetCity) return;
-    const transaction = props.product.transactions.find(
-      (tr) => tr.targetCity === form.values.targetCity
-    );
-    if (transaction && transaction.basePrice > 0) {
-      const price = +((percent[0] / 100.0) * transaction.basePrice).toFixed(0);
-      if (price > 0) {
-        form.resetField('price', { value: price });
-      }
-    }
-  }
-);
-
-const onSubmit = form.handleSubmit(async (values) => {
-  try {
-    await $fetch(`/api/log`, {
-      method: 'POST',
-      body: {
-        name: props.product.name,
-        sourceCity: props.city.name,
-        targetCity: values.targetCity,
-        type: props.city.name !== values.targetCity ? 'sell' : 'buy',
-        trend: values.trend,
-        price: values.price,
-        percent: values.percent[0],
-        uploadedAt: new Date().getTime()
-      }
-    });
-    toast.success(`上报成功`);
-    open.value = false;
-    store.fetch();
-  } catch (error) {
-    console.error(error);
-    toast.error(`上报失败`);
   }
 });
 </script>

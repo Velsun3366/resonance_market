@@ -5,7 +5,14 @@ import type { Log } from '~/drizzle/schema';
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-const props = defineProps<{ timestamp: number; product: ProductInfo; log: Log | undefined }>();
+const props = defineProps<{
+  timestamp: number;
+  product: ProductInfo;
+  transaction: TransactionInfo | undefined;
+  log: Log | undefined;
+}>();
+
+const openTooltip = ref(false);
 
 const isOutdated = computed(() => {
   if (!props.log) return true;
@@ -80,9 +87,9 @@ const shortTime = computed(() => {
 <template>
   <div>
     <TooltipProvider v-if="log && shortTime" :delayDuration="300" :skipDelayDuration="100">
-      <Tooltip>
+      <Tooltip v-model:open="openTooltip">
         <TooltipTrigger as-child>
-          <div :class="[{ 'op-50': isOutdated }, 'space-y-1']">
+          <div :class="[{ 'op-50': isOutdated }, 'space-y-1']" @touchstart="openTooltip = true">
             <div
               v-if="log.type === 'sell'"
               :class="['h-6 flex gap-1 items-center', { 'line-through': isOutdated }]"
@@ -119,7 +126,7 @@ const shortTime = computed(() => {
         <TooltipContent>
           <div v-if="log" class="py-1 space-y-1">
             <p class="flex items-center">
-              <span class="font-bold mr-2">价格</span>
+              <span class="font-bold mr-2">实时价格</span>
               <span
                 :class="[
                   {
@@ -154,8 +161,32 @@ const shortTime = computed(() => {
                 >{{ profit }}</span
               >
             </p>
+            <p v-if="log.type === 'sell' && product.baseVolume">
+              <span class="font-bold mr-2">单票利润</span>
+              <span
+                :class="{
+                  'text-red': log.percent < 100,
+                  'text-green': log.percent > 100,
+                  'line-through': isOutdated,
+                  'op-50': isOutdated
+                }"
+                >{{ +(profit ?? 0) * product.baseVolume }}</span
+              >
+            </p>
+            <p v-if="log.type === 'sell' && transaction?.basePrice">
+              <span class="font-bold mr-2">基准价格</span>
+              <span>{{ transaction.basePrice }}</span>
+            </p>
+            <p v-if="log.type === 'buy' && product.baseVolume">
+              <span class="font-bold mr-2">基础货量</span>
+              <span>{{ product.baseVolume }}</span>
+            </p>
+            <p v-if="log.type === 'buy' && product.basePrice">
+              <span class="font-bold mr-2">基准价格</span>
+              <span>{{ product.basePrice }}</span>
+            </p>
             <p>
-              <span class="font-bold mr-2">最近更新于</span>
+              <span class="font-bold mr-2">更新时间</span>
               <span :class="{ 'op-50': isOutdated }">{{
                 format(log.uploadedAt, { date: 'long', time: 'medium' })
               }}</span>

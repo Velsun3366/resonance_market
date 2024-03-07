@@ -90,6 +90,7 @@ const valuable = new Set([
   '阿妮塔战备工厂:阿妮塔202军用无人机',
   '阿妮塔战备工厂:抗污染防护服',
   '阿妮塔战备工厂:钛合金',
+  '阿妮塔战备工厂:碳纤维',
   '阿妮塔能源研究所:阿妮塔小型桦树发电机',
   '阿妮塔能源研究所:石墨烯电池',
   '阿妮塔能源研究所:阿妮塔101民用无人机',
@@ -127,7 +128,7 @@ for (const row of data) {
   };
 
   for (const city of cities) {
-    if (!row[`${city}_mileage`]) continue;
+    if (!row[`${city}_mileage`] || row[`${city}_basePrice`] === '') continue;
     const trans = {
       name: product.name,
       sourceCity: product.city,
@@ -144,4 +145,4 @@ for (const row of data) {
   products.push(product);
 }
 
-await fs.writeFile(`./data.json`, JSON.stringify(products, null, 2), 'utf-8');
+await fs.writeFile(`./utils/products.json`, JSON.stringify(products, null, 2), 'utf-8');
