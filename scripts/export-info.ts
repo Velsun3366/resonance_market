@@ -26,7 +26,7 @@ const data = parse(body, {
         case '基础货量':
           expand.push('baseVolume');
           break;
-        case '基准价格':
+        case '基准价格' && id < 6:
           expand.push('basePrice');
           break;
         case '类型':
