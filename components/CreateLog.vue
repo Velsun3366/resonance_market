@@ -118,7 +118,7 @@ watch(open, (open) => {
               <Input
                 type="number"
                 :placeholder="
-                  form.values.targetCity !== city.name ? '售出价位百分比' : '买入价位百分比'
+                  form.values.targetCity !== city.name ? '售出价位' : '买入价位'
                 "
                 v-bind="componentField"
               />
